@@ -4,9 +4,15 @@ import { MakerDMG } from '@electron-forge/maker-dmg';
 import { VitePlugin } from '@electron-forge/plugin-vite';
 
 const config: ForgeConfig = {
-  packagerConfig: {},
+  packagerConfig: {
+    name: 'LAN Scanner',
+    icon: './assets/icon',
+    appBundleId: 'com.lanscanner.app',
+  },
   rebuildConfig: {},
-  makers: [new MakerDMG({})],
+  makers: [new MakerDMG({
+    icon: './assets/icon.icns',
+  })],
   plugins: [
     new VitePlugin({
       // `build` can specify multiple entry builds
