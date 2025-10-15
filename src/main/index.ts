@@ -6,6 +6,9 @@ import { IPC_CHANNELS } from '../shared/constants';
 let mainWindow: BrowserWindow | null = null;
 let scanner: NetworkScanner | null = null;
 
+// Set app name
+app.setName('LAN Scanner');
+
 const createWindow = () => {
   mainWindow = new BrowserWindow({
     width: 1200,
