@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
@@ -8,7 +9,7 @@ export default defineConfig({
   build: {
     outDir: '../../.vite/renderer',
     rollupOptions: {
-      input: 'index.html'
+      input: path.resolve(__dirname, 'src/renderer/index.html')
     }
   }
 });
