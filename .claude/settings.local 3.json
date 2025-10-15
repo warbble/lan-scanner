@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run:*)",
+      "Bash(npm install:*)",
+      "Bash(npm start:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(npx electron-forge start)",
+      "Bash(npx electron-forge:*)",
+      "Bash(npx tsc:*)",
+      "Bash(kill:*)",
+      "Bash(pkill:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

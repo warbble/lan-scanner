@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self';">
+  <title>LAN Scanner</title>
+  <style>
+    /* Using system fonts for faster loading */
+    
+    * { 
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box; 
+    }
+    
+    :root {
+      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      --danger-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+      --glass-bg: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+      --dark-bg: #0f0f23;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --text-primary: #2d3748;
+      --text-secondary: #718096;
+      --border-color: rgba(226, 232, 240, 0.8);
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+      --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+      --shadow-xl: 0 25px 50px rgba(0, 0, 0, 0.25);
+    }
+    
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Inter', sans-serif; 
+      background: var(--dark-bg);
+      background-image: 
+        radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 80%, rgba(120, 198, 121, 0.3) 0%, transparent 50%);
+      min-height: 100vh;
+      color: var(--text-primary);
+    }
+    
+    .app { 
+      min-height: 100vh; 
+      display: flex; 
+      flex-direction: column;
+      backdrop-filter: blur(10px);
+    }
+    
+    .header { 
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      padding: 1.5rem 2rem; 
+      border-bottom: 1px solid var(--border-color);
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center;
+      box-shadow: var(--shadow-sm);
+      border-radius: 0 0 20px 20px;
+      margin: 1rem 1rem 0 1rem;
+    }
+    
+    .header h1 { 
+      font-size: 1.75rem; 
+      font-weight: 700;
+      background: var(--primary-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .controls {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+    
+    .btn-primary { 
+      background: var(--primary-gradient);
+      color: white; 
+      border: none; 
+      padding: 0.75rem 1.5rem; 
+      border-radius: 12px; 
+      cursor: pointer; 
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow-md);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn-primary:hover { 
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+    
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+    
+    .btn-stop { 
+      background: var(--danger-gradient);
+      color: white; 
+      border: none; 
+      padding: 0.75rem 1.5rem; 
+      border-radius: 12px; 
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow-md);
+    }
+    
+    .btn-stop:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+    
+    main { 
+      flex: 1; 
+      padding: 2rem;
+    }
+    
+    .device-table { 
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      border-radius: 20px; 
+      padding: 0;
+      box-shadow: var(--shadow-xl);
+      border: 1px solid var(--glass-border);
+      overflow: hidden;
+    }
+    
+    .filters { 
+      padding: 1.5rem 2rem; 
+      border-bottom: 1px solid var(--border-color);
+      display: flex; 
+      gap: 1.5rem; 
+      align-items: center;
+      background: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(10px);
+    }
+    
+    .search-input { 
+      padding: 0.75rem 1rem; 
+      border: 2px solid transparent;
+      border-radius: 12px; 
+      flex: 1; 
+      max-width: 300px;
+      background: rgba(255, 255, 255, 0.9);
+      font-size: 14px;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .search-input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      transform: translateY(-1px);
+    }
+    
+    .search-input::placeholder {
+      color: var(--text-secondary);
+    }
+    
+    table { 
+      width: 100%; 
+      border-collapse: collapse;
+    }
+    
+    th { 
+      text-align: left; 
+      padding: 1rem 1.5rem; 
+      border-bottom: 2px solid var(--border-color);
+      font-size: 13px; 
+      color: var(--text-secondary);
+      cursor: pointer; 
+      user-select: none;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: all 0.2s ease;
+      background: rgba(255, 255, 255, 0.3);
+    }
+    
+    th:hover { 
+      background: rgba(102, 126, 234, 0.1);
+      color: #667eea;
+    }
+    
+    td { 
+      padding: 1rem 1.5rem; 
+      border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+    
+    tr.online { 
+      background: linear-gradient(90deg, rgba(16, 185, 129, 0.08) 0%, rgba(34, 197, 94, 0.08) 100%);
+    }
+    
+    tr.offline { 
+      opacity: 0.6;
+      background: rgba(250, 112, 154, 0.05);
+    }
+    
+    tr:hover { 
+      background: rgba(102, 126, 234, 0.1);
+      transform: scale(1.01);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .empty-state { 
+      text-align: center; 
+      padding: 4rem 2rem; 
+      color: var(--text-secondary);
+      font-size: 16px;
+    }
+    
+    .error-banner { 
+      background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+      color: white; 
+      padding: 1rem 2rem; 
+      text-align: center;
+      margin: 1rem;
+      border-radius: 12px;
+      box-shadow: var(--shadow-md);
+      font-weight: 500;
+    }
+    
+    /* Status indicators with glow effect */
+    .status-online {
+      color: #10b981;
+      filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.8));
+      font-size: 18px;
+      text-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+    }
+    
+    .status-offline {
+      color: #6b7280;
+      filter: drop-shadow(0 0 4px rgba(107, 114, 128, 0.4));
+      font-size: 18px;
+      opacity: 0.5;
+    }
+    
+    /* Checkbox styling */
+    input[type="checkbox"] {
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid #667eea;
+      border-radius: 4px;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    input[type="checkbox"]:checked {
+      background: var(--primary-gradient);
+      border-color: transparent;
+    }
+    
+    input[type="checkbox"]:checked::after {
+      content: '✓';
+      position: absolute;
+      top: -2px;
+      left: 2px;
+      color: white;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    
+    label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+    
+    /* Scanning animation */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .scanning {
+      animation: pulse 2s infinite;
+    }
+    
+    /* Smooth scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: var(--primary-gradient);
+      border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--secondary-gradient);
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="./main.tsx"></script>
+</body>
+</html>
